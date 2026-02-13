@@ -620,25 +620,44 @@
         if (e.touches.length > 1) return;
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
-        e.preventDefault(); 
+        // 移除 preventDefault()，允许点击事件穿透
     }, {passive: false});
 
     document.addEventListener('touchmove', e => {
-        e.preventDefault();
+        // 如果是帮助弹窗或结束弹窗处于激活状态，允许默认滚动行为
+        if (document.getElementById('help-modal').classList.contains('active') || 
+            document.getElementById('overlay').classList.contains('active')) {
+            return;
+        }
+        e.preventDefault(); // 仅在游戏进行时阻止默认滚动行为
     }, {passive: false});
 
     document.addEventListener('touchend', e => {
+        // 如果有弹窗显示，不处理游戏的滑动逻辑
+        if (document.getElementById('help-modal').classList.contains('active') || 
+            document.getElementById('overlay').classList.contains('active')) {
+            return;
+        }
+
         if(!touchStartX || !touchStartY) return;
         let diffX = e.changedTouches[0].clientX - touchStartX;
         let diffY = e.changedTouches[0].clientY - touchStartY;
         
-        if(Math.abs(diffX) > Math.abs(diffY)) {
-            if(Math.abs(diffX) > 30) move(diffX > 0 ? 'right' : 'left');
-        } else {
-            if(Math.abs(diffY) > 30) move(diffY > 0 ? 'down' : 'up');
+        // 增加最小滑动距离判断，避免误触点击
+        if (Math.abs(diffX) > 10 || Math.abs(diffY) > 10) { 
+            if(Math.abs(diffX) > Math.abs(diffY)) {
+                if(Math.abs(diffX) > 30) {
+                    move(diffX > 0 ? 'right' : 'left');
+                    e.preventDefault(); // 只有触发滑动时才阻止默认行为
+                }
+            } else {
+                if(Math.abs(diffY) > 30) {
+                    move(diffY > 0 ? 'down' : 'up');
+                    e.preventDefault();
+                }
+            }
         }
         touchStartX = 0; touchStartY = 0;
-        e.preventDefault();
     }, {passive: false});
 
     window.addEventListener('resize', renderBoard);
