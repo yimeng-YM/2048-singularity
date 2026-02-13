@@ -16,10 +16,13 @@
             height: 100vh;
             margin: 0;
             user-select: none;
+            touch-action: none;
+            overscroll-behavior: none;
         }
 
         .header-container {
             width: 435px;
+            max-width: 95vw;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -41,7 +44,26 @@
 
         .score-board {
             display: flex;
-            gap: 10px;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .restart-btn {
+            background: #8f7a66;
+            border-radius: 3px;
+            color: white;
+            padding: 0 10px;
+            height: 40px;
+            line-height: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        .restart-btn:hover {
+            background: #9c8b7a;
         }
 
         .score-box {
@@ -77,6 +99,26 @@
             height: 435px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             box-sizing: border-box;
+        }
+
+        @media (max-width: 480px) {
+            .header-container {
+                width: 300px;
+            }
+            
+            #game-wrapper {
+                transform: scale(0.7);
+                transform-origin: top center;
+                margin-top: -20px;
+            }
+
+            .title-group h1 {
+                font-size: 28px;
+            }
+            
+            .title-group .desc {
+                font-size: 14px;
+            }
         }
 
         .grid-cell {
@@ -216,6 +258,7 @@
                 <div class="label">步数</div>
                 <div class="value" id="moves-display">0</div>
             </div>
+            <div class="restart-btn" onclick="initGame()">重新开始</div>
         </div>
     </div>
     
@@ -237,8 +280,8 @@
 <script>
     const GRID_SIZE = 4;
     const TARGET_ID = 'TARGET';
-    const WIN_BONUS_BASE = 10000; // 基础奖励分
-    const MOVE_PENALTY = 10;      // 每走一步扣除的奖励分
+    const WIN_BONUS_BASE = 10000;
+    const MOVE_PENALTY = 10;
 
     let board = [];
     let score = 0;
@@ -294,7 +337,7 @@
             else if (i + 1 < arr.length && arr[i] === arr[i+1] && arr[i+1] !== TARGET_ID) {
                 let mergedVal = arr[i] * 2;
                 newRow.push(mergedVal);
-                rowScore += mergedVal; // 累加合并分
+                rowScore += mergedVal;
                 i++; 
             } 
             else {
@@ -460,8 +503,14 @@
     let touchStartX = 0;
     let touchStartY = 0;
     document.addEventListener('touchstart', e => {
+        if (e.touches.length > 1) return;
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
+        e.preventDefault(); 
+    }, {passive: false});
+
+    document.addEventListener('touchmove', e => {
+        e.preventDefault();
     }, {passive: false});
 
     document.addEventListener('touchend', e => {
