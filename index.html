@@ -13,11 +13,14 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
+            min-height: 100dvh;
+            padding: 24px;
+            box-sizing: border-box;
             margin: 0;
             user-select: none;
-            touch-action: none;
-            overscroll-behavior: none;
+            touch-action: pan-y;
+            overflow-x: hidden;
         }
 
         .header-container {
@@ -25,7 +28,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 0;
         }
 
         .title-group h1 {
@@ -43,12 +46,34 @@
             align-items: center;
         }
 
+        .timer-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 9px;
+            padding: 5px 10px;
+            background: #bbada0;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-display svg {
+            width: 15px;
+            height: 15px;
+        }
+
         .help-icon {
             display: inline-flex;
             justify-content: center;
             align-items: center;
             width: 18px;
             height: 18px;
+            min-width: 18px;
+            padding: 0;
+            border: 0;
             background: #8f7a66;
             color: white;
             border-radius: 50%;
@@ -66,15 +91,18 @@
 
         .restart-btn {
             background: #8f7a66;
+            border: 0;
             border-radius: 3px;
             color: white;
             width: 40px;
             height: 40px;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             margin-left: 5px;
+            flex-shrink: 0;
         }
 
         .restart-btn:hover {
@@ -102,6 +130,22 @@
             font-weight: bold;
         }
 
+        .game-layout {
+            display: grid;
+            grid-template-columns: 285px 435px 285px;
+            grid-template-areas: "milestones game history";
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        .game-column {
+            grid-area: game;
+            width: 435px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
         #game-wrapper {
             position: relative;
         }
@@ -114,6 +158,241 @@
             height: 435px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             box-sizing: border-box;
+            touch-action: none;
+        }
+
+        .record-panel {
+            height: auto;
+            min-height: 0;
+            align-self: stretch;
+            contain: size;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(187, 173, 160, 0.55);
+            border-radius: 12px;
+            box-shadow: 0 4px 14px rgba(119, 110, 101, 0.12);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .milestone-panel { grid-area: milestones; }
+        .history-panel { grid-area: history; }
+
+        .panel-header {
+            padding: 16px 16px 12px;
+            border-bottom: 1px solid rgba(187, 173, 160, 0.35);
+        }
+
+        .panel-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .panel-header h2 {
+            margin: 0;
+            color: #3e3933;
+            font-size: 18px;
+            line-height: 1.25;
+        }
+
+        .panel-kicker {
+            display: inline-flex;
+            align-items: center;
+            min-height: 24px;
+            padding: 0 8px;
+            border-radius: 999px;
+            background: #eee4da;
+            color: #776e65;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .panel-subtitle {
+            margin: 6px 0 0;
+            color: #8f7a66;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .panel-scroll {
+            min-height: 0;
+            padding: 10px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+            scrollbar-color: #bbada0 transparent;
+        }
+
+        .empty-records {
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 18px;
+            color: #9b8f84;
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .empty-records svg {
+            width: 28px;
+            height: 28px;
+            color: #bbada0;
+        }
+
+        .milestone-list {
+            display: grid;
+            gap: 7px;
+        }
+
+        .milestone-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 10px;
+            min-height: 44px;
+            padding: 6px 10px 6px 6px;
+            background: #fffaf4;
+            border: 1px solid rgba(187, 173, 160, 0.28);
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .milestone-tile {
+            width: 38px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .milestone-time,
+        .record-time,
+        .record-score,
+        .record-2048 {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .milestone-time {
+            color: #3e3933;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .milestone-time.pending {
+            color: #b8aba0;
+            font-weight: normal;
+        }
+
+        .sort-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .sort-button {
+            min-height: 36px;
+            padding: 7px 10px;
+            border: 1px solid #bbada0;
+            border-radius: 7px;
+            background: transparent;
+            color: #776e65;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .sort-button:hover {
+            background: #eee4da;
+        }
+
+        .sort-button.active {
+            background: #8f7a66;
+            border-color: #8f7a66;
+            color: #fff;
+        }
+
+        .record-table-head,
+        .game-record-row {
+            display: grid;
+            grid-template-columns: 24px 58px 1fr 68px;
+            gap: 7px;
+            align-items: center;
+        }
+
+        .record-table-head {
+            position: sticky;
+            top: -10px;
+            z-index: 2;
+            margin: -10px -10px 7px;
+            padding: 10px 12px 7px;
+            background: #faf8ef;
+            color: #9b8f84;
+            font-size: 10px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .record-table-head span:first-child,
+        .record-table-head span:nth-child(2) {
+            text-align: left;
+        }
+
+        .game-records {
+            display: grid;
+            gap: 7px;
+        }
+
+        .game-record-row {
+            min-height: 52px;
+            padding: 7px 8px;
+            background: #fffaf4;
+            border: 1px solid rgba(187, 173, 160, 0.28);
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        .record-rank {
+            color: #9b8f84;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .record-time,
+        .record-score {
+            color: #3e3933;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .record-time { text-align: left; }
+
+        .record-2048 {
+            color: #8f7a66;
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 1.2;
+            text-align: right;
+        }
+
+        .record-2048.reached {
+            color: #b06d00;
+        }
+
+        button:focus-visible,
+        .help-icon:focus-visible {
+            outline: 3px solid rgba(242, 177, 121, 0.7);
+            outline-offset: 2px;
         }
 
         .grid-cell {
@@ -130,6 +409,11 @@
         }
 
         @media (max-width: 520px) {
+            body {
+                justify-content: flex-start;
+                padding: 12px 12px 28px;
+            }
+
             .header-container {
                 width: 300px;
                 flex-direction: column;
@@ -139,6 +423,10 @@
 
             .title-group {
                 text-align: center;
+            }
+
+            .timer-display {
+                justify-content: center;
             }
 
             .title-group h1 {
@@ -161,6 +449,66 @@
             }
         }
 
+        @media (max-width: 1099px) {
+            body {
+                justify-content: flex-start;
+            }
+
+            .game-layout {
+                width: min(100%, 620px);
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "game"
+                    "milestones"
+                    "history";
+                justify-items: center;
+            }
+
+            .game-column {
+                width: 435px;
+            }
+
+            .record-panel {
+                width: min(100%, 435px);
+                height: auto;
+                max-height: 430px;
+                contain: none;
+            }
+
+            .panel-scroll {
+                max-height: 310px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .game-layout,
+            .game-column,
+            .record-panel {
+                width: 300px;
+            }
+
+            .record-panel {
+                max-height: 390px;
+            }
+
+            .panel-header {
+                padding: 14px 14px 11px;
+            }
+
+            .record-table-head,
+            .game-record-row {
+                grid-template-columns: 22px 54px 1fr 64px;
+                gap: 5px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
         .tile-0 { background: rgba(238, 228, 218, 0.35); z-index: 0; }
         .tile-2 { background: #eee4da; color: #776e65; }
         .tile-4 { background: #ede0c8; color: #776e65; }
@@ -171,6 +519,13 @@
         .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 32px; box-shadow: 0 0 10px #edcf7277; }
         .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 32px; box-shadow: 0 0 10px #edcc6177; }
         .tile-super { background: #edc22e; color: #f9f6f2; font-size: 28px; }
+
+        .milestone-tile.tile-128,
+        .milestone-tile.tile-256,
+        .milestone-tile.tile-super {
+            font-size: 11px;
+            box-shadow: none;
+        }
         
         .tile-target {
             background: #3e3933; 
@@ -322,73 +677,308 @@
 </head>
 <body>
 
-    <div class="header-container">
-        <div class="title-group">
-            <h1>2048: 奇点</h1>
-            <div class="desc">将 <span>&infin;</span> 移送至右下角 <span class="help-icon" onclick="showHelp()">?</span></div>
-        </div>
-        <div class="score-board">
-            <div class="score-box">
-                <div class="label">分数</div>
-                <div class="value" id="score-display">0</div>
+    <main class="game-layout">
+        <section class="record-panel milestone-panel" aria-labelledby="milestone-title">
+            <div class="panel-header">
+                <div class="panel-title-row">
+                    <h2 id="milestone-title">合成里程碑</h2>
+                    <span class="panel-kicker">本局</span>
+                </div>
             </div>
-            <div class="score-box">
-                <div class="label">步数</div>
-                <div class="value" id="moves-display">0</div>
-            </div>
-            <div class="restart-btn" onclick="initGame()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 4v6h-6"></path>
-                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                </svg>
-            </div>
-        </div>
-    </div>
-    
-    <div id="game-wrapper">
-        <div id="game-container">
-            <div class="exit-marker">EXIT</div>
-        </div>
+            <div class="panel-scroll" id="milestone-list" aria-live="polite"></div>
+        </section>
 
-        <div id="overlay">
-            <h2 id="overlay-title">游戏结束!</h2>
-            <div id="score-breakdown"></div>
-            <button onclick="initGame()">再来一局</button>
-        </div>
-
-        <div id="help-modal">
-            <h3>玩法说明</h3>
-            <p><strong>核心目标：</strong> 将 <span style="font-weight:bold;">&infin;</span> 移送至右下角终点。</p>
-            
-            <div style="background:#f4f4f4; padding:10px; border-radius:4px; margin:10px 0; font-size:13px;">
-                <p style="margin:0 0 5px 0;"><strong>总分计算公式：</strong></p>
-                <p style="margin:0;">总分 = <span style="color:#e9730f">基础消除分</span> + <span style="color:#e9730f">速度奖励分</span></p>
-                <ul style="margin:5px 0 0 20px; padding:0;">
-                    <li>基础消除分：所有合并数字的总和</li>
-                    <li>速度奖励分：10000 - (步数 × 10)</li>
-                    <li style="color:#999; font-size:12px;">注：速度奖励分最低为 0</li>
-                </ul>
+        <div class="game-column">
+            <div class="header-container">
+                <div class="title-group">
+                    <h1>2048: 奇点</h1>
+                    <div class="desc">将 <span>&infin;</span> 移送至右下角 <button class="help-icon" onclick="showHelp()" aria-label="查看玩法说明">?</button></div>
+                    <div class="timer-display" aria-label="本局用时">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="13" r="8"></circle>
+                            <path d="M12 9v4l2.5 1.5M9 2h6"></path>
+                        </svg>
+                        <span>用时</span>
+                        <span id="timer-display">00:00</span>
+                    </div>
+                </div>
+                <div class="score-board">
+                    <div class="score-box">
+                        <div class="label">分数</div>
+                        <div class="value" id="score-display">0</div>
+                    </div>
+                    <div class="score-box">
+                        <div class="label">步数</div>
+                        <div class="value" id="moves-display">0</div>
+                    </div>
+                    <button class="restart-btn" onclick="initGame()" aria-label="重新开始">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
-            <p><strong>流派一：速通流</strong><br>
-            快速将 &infin; 移至终点。步数极少，能拿满<span style="color:#e9730f">速度奖励分</span>（接近10000分），但因缺乏合并，消除分极低。总分通常在1万左右。</p>
-            <p><strong>流派二：运营流（高分）</strong><br>
-            在有限空间内布局合成大数（如2048）。虽然步数过多会导致速度奖励归零，但<span style="color:#e9730f">消除分</span>无上限。风险极大，收益极高。</p>
-            <button class="close-btn" onclick="hideHelp()">明白了</button>
-            <div style="height: 20px; flex-shrink: 0;"></div> <!-- 底部占位，防止按钮贴底 -->
+        <div id="game-wrapper">
+            <div id="game-container">
+                <div class="exit-marker">EXIT</div>
+            </div>
+
+            <div id="overlay">
+                <h2 id="overlay-title">游戏结束!</h2>
+                <div id="score-breakdown"></div>
+                <button onclick="initGame()">再来一局</button>
+            </div>
+
+            <div id="help-modal">
+                <h3>玩法说明</h3>
+                <p><strong>核心目标：</strong> 将 <span style="font-weight:bold;">&infin;</span> 移送至右下角终点。</p>
+
+                <div style="background:#f4f4f4; padding:10px; border-radius:4px; margin:10px 0; font-size:13px;">
+                    <p style="margin:0 0 5px 0;"><strong>总分计算公式：</strong></p>
+                    <p style="margin:0;">总分 = <span style="color:#e9730f">基础消除分</span> + <span style="color:#e9730f">速度奖励分</span></p>
+                    <ul style="margin:5px 0 0 20px; padding:0;">
+                        <li>基础消除分：所有合并数字的总和</li>
+                        <li>速度奖励分：10000 - (步数 × 10)</li>
+                        <li style="color:#999; font-size:12px;">注：速度奖励分最低为 0</li>
+                    </ul>
+                </div>
+
+                <p><strong>流派一：速通流</strong><br>
+                快速将 &infin; 移至终点。步数极少，能拿满<span style="color:#e9730f">速度奖励分</span>（接近10000分），但因缺乏合并，消除分极低。总分通常在1万左右。</p>
+                <p><strong>流派二：运营流（高分）</strong><br>
+                在有限空间内布局合成大数（如2048）。虽然步数过多会导致速度奖励归零，但<span style="color:#e9730f">消除分</span>无上限。风险极大，收益极高。</p>
+                <button class="close-btn" onclick="hideHelp()">明白了</button>
+                <div style="height: 20px; flex-shrink: 0;"></div>
+            </div>
         </div>
-    </div>
+        </div>
+
+        <section class="record-panel history-panel" aria-labelledby="history-title">
+            <div class="panel-header">
+                <div class="panel-title-row">
+                    <h2 id="history-title">对局记录</h2>
+                    <span class="panel-kicker" id="record-count">0 局</span>
+                </div>
+                <p class="panel-subtitle">保存结束用时、最终得分与 2048 里程碑</p>
+                <div class="sort-controls" role="group" aria-label="对局记录排序方式">
+                    <button class="sort-button active" id="sort-time" onclick="setRecordSort('time')" aria-pressed="true">最快用时</button>
+                    <button class="sort-button" id="sort-score" onclick="setRecordSort('score')" aria-pressed="false">最高得分</button>
+                </div>
+            </div>
+            <div class="panel-scroll" id="game-records" aria-live="polite"></div>
+        </section>
+    </main>
 
 <script>
     const GRID_SIZE = 4;
     const TARGET_ID = 'TARGET';
     const WIN_BONUS_BASE = 10000;
     const MOVE_PENALTY = 10;
+    const MILESTONE_VALUES = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
+    const GAME_RECORDS_KEY = 'singularity-2048-game-records-v1';
+    const MAX_SAVED_RECORDS = 50;
+    const MAX_VISIBLE_RECORDS = 10;
 
     let board = [];
     let score = 0;
     let moves = 0;
     let gameState = 'playing';
+    let timerStartedAt = 0;
+    let elapsedTimeMs = 0;
+    let timerInterval = null;
+    let timerHasStarted = false;
+    let milestoneTimes = {};
+    let gameRecords = loadGameRecords();
+    let recordSort = 'time';
+    let gameRecorded = false;
+    let endScreenTimeout = null;
+
+    function formatTime(milliseconds) {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function getElapsedTime() {
+        return elapsedTimeMs + (timerStartedAt ? Date.now() - timerStartedAt : 0);
+    }
+
+    function updateTimerDisplay() {
+        document.getElementById('timer-display').innerText = formatTime(getElapsedTime());
+    }
+
+    function resumeTimer() {
+        if (!timerHasStarted || gameState !== 'playing' || timerStartedAt || timerInterval) return;
+        timerStartedAt = Date.now();
+        timerInterval = setInterval(updateTimerDisplay, 250);
+        updateTimerDisplay();
+    }
+
+    function startTimer() {
+        if (timerHasStarted || gameState !== 'playing') return;
+        timerHasStarted = true;
+        resumeTimer();
+    }
+
+    function pauseTimer() {
+        if (timerStartedAt) {
+            elapsedTimeMs += Date.now() - timerStartedAt;
+            timerStartedAt = 0;
+        }
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        updateTimerDisplay();
+    }
+
+    function resetTimer() {
+        pauseTimer();
+        elapsedTimeMs = 0;
+        timerHasStarted = false;
+        updateTimerDisplay();
+    }
+
+    function loadGameRecords() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(GAME_RECORDS_KEY) || '[]');
+            if (!Array.isArray(saved)) return [];
+            return saved.filter(record =>
+                Number.isFinite(record.durationMs) && Number.isFinite(record.finalScore)
+            ).slice(0, MAX_SAVED_RECORDS);
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function saveGameRecords() {
+        try {
+            localStorage.setItem(GAME_RECORDS_KEY, JSON.stringify(gameRecords));
+        } catch (error) {
+            // 存储不可用时仍保留当前页面内的记录。
+        }
+    }
+
+    function formatScore(value) {
+        return Number(value).toLocaleString('zh-CN');
+    }
+
+    function getTileClass(value) {
+        return `tile-${value <= 2048 ? value : 'super'}`;
+    }
+
+    function renderMilestones() {
+        const container = document.getElementById('milestone-list');
+        const recordedValues = Object.keys(milestoneTimes).map(Number);
+        const values = [...new Set([...MILESTONE_VALUES, ...recordedValues])]
+            .sort((a, b) => a - b);
+
+        container.innerHTML = `<div class="milestone-list">${values.map(value => {
+            const time = milestoneTimes[value];
+            const achieved = Number.isFinite(time);
+            return `
+            <div class="milestone-row" aria-label="${value}，${achieved ? `首次合成用时 ${formatTime(time)}` : '尚未合成'}">
+                <span class="milestone-tile ${getTileClass(value)}">${value}</span>
+                <span class="milestone-time ${achieved ? '' : 'pending'}">${achieved ? formatTime(time) : '--:--'}</span>
+            </div>
+        `;}).join('')}</div>`;
+    }
+
+    function recordMilestones(values) {
+        const milestoneTime = getElapsedTime();
+        let hasNewMilestone = false;
+
+        values.forEach(value => {
+            if (!Object.prototype.hasOwnProperty.call(milestoneTimes, value)) {
+                milestoneTimes[value] = milestoneTime;
+                hasNewMilestone = true;
+            }
+        });
+
+        if (hasNewMilestone) renderMilestones();
+    }
+
+    function setRecordSort(sortType) {
+        if (!['time', 'score'].includes(sortType)) return;
+        recordSort = sortType;
+        renderGameRecords();
+    }
+
+    function renderGameRecords() {
+        const container = document.getElementById('game-records');
+        document.getElementById('record-count').innerText = `${gameRecords.length} 局`;
+
+        ['time', 'score'].forEach(sortType => {
+            const button = document.getElementById(`sort-${sortType}`);
+            const isActive = recordSort === sortType;
+            button.classList.toggle('active', isActive);
+            button.setAttribute('aria-pressed', String(isActive));
+        });
+
+        if (gameRecords.length === 0) {
+            container.innerHTML = `
+                <div class="empty-records">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                        <path d="M8 21h8M12 17v4M7 4h10v3a5 5 0 0 1-10 0V4Z"/>
+                        <path d="M7 6H4v1a4 4 0 0 0 4 4M17 6h3v1a4 4 0 0 1-4 4"/>
+                    </svg>
+                    <span>完成一局后<br>成绩会保存在这里</span>
+                </div>
+            `;
+            return;
+        }
+
+        const sortedRecords = [...gameRecords].sort((a, b) => {
+            if (recordSort === 'score') {
+                return b.finalScore - a.finalScore || a.durationMs - b.durationMs;
+            }
+            return a.durationMs - b.durationMs || b.finalScore - a.finalScore;
+        }).slice(0, MAX_VISIBLE_RECORDS);
+
+        container.innerHTML = `
+            <div class="record-table-head" aria-hidden="true">
+                <span>#</span><span>用时</span><span>最终分</span><span>2048</span>
+            </div>
+            <div class="game-records">${sortedRecords.map((record, index) => {
+                const reached2048 = record.reached2048 && Number.isFinite(record.timeTo2048Ms);
+                const milestoneLabel = reached2048
+                    ? `已到达，首次用时 ${formatTime(record.timeTo2048Ms)}`
+                    : '未到达 2048';
+                return `
+                    <div class="game-record-row" role="group" aria-label="第 ${index + 1} 名，用时 ${formatTime(record.durationMs)}，最终得分 ${record.finalScore}，${milestoneLabel}">
+                        <span class="record-rank">${index + 1}</span>
+                        <span class="record-time">${formatTime(record.durationMs)}</span>
+                        <span class="record-score">${formatScore(record.finalScore)}</span>
+                        <span class="record-2048 ${reached2048 ? 'reached' : ''}">${reached2048 ? `已达<br>${formatTime(record.timeTo2048Ms)}` : '未到达'}</span>
+                    </div>
+                `;
+            }).join('')}</div>
+        `;
+    }
+
+    function recordFinishedGame(won, finalScore) {
+        if (gameRecorded) return;
+        gameRecorded = true;
+
+        const timeTo2048Ms = Object.prototype.hasOwnProperty.call(milestoneTimes, 2048)
+            ? milestoneTimes[2048]
+            : null;
+
+        gameRecords.unshift({
+            id: Date.now(),
+            result: won ? 'won' : 'lost',
+            durationMs: getElapsedTime(),
+            finalScore,
+            reached2048: timeTo2048Ms !== null,
+            timeTo2048Ms
+        });
+        gameRecords = gameRecords.slice(0, MAX_SAVED_RECORDS);
+        saveGameRecords();
+        renderGameRecords();
+    }
 
     function getPos(index) {
         if (window.innerWidth <= 520) {
@@ -398,14 +988,23 @@
     }
 
     function initGame() {
+        if (endScreenTimeout) {
+            clearTimeout(endScreenTimeout);
+            endScreenTimeout = null;
+        }
         board = Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(0));
         score = 0;
         moves = 0;
         gameState = 'playing';
+        milestoneTimes = {};
+        gameRecorded = false;
         
         updateUI();
+        renderMilestones();
+        renderGameRecords();
         document.getElementById('overlay').classList.remove('active');
         document.getElementById('help-modal').classList.remove('active');
+        resetTimer();
         
         board[0][0] = TARGET_ID;
         addRandomTile();
@@ -419,11 +1018,13 @@
     }
 
     function showHelp() {
+        if (gameState === 'playing') pauseTimer();
         document.getElementById('help-modal').classList.add('active');
     }
 
     function hideHelp() {
         document.getElementById('help-modal').classList.remove('active');
+        if (gameState === 'playing') resumeTimer();
     }
 
     function addRandomTile() {
@@ -443,6 +1044,7 @@
         let arr = row.filter(val => val !== 0);
         let newRow = [];
         let rowScore = 0;
+        let mergedValues = [];
         
         for(let i=0; i < arr.length; i++) {
             if (arr[i] === TARGET_ID) {
@@ -452,6 +1054,7 @@
                 let mergedVal = arr[i] * 2;
                 newRow.push(mergedVal);
                 rowScore += mergedVal;
+                mergedValues.push(mergedVal);
                 i++; 
             } 
             else {
@@ -461,15 +1064,17 @@
         while(newRow.length < GRID_SIZE) {
             newRow.push(0);
         }
-        return { newRow, rowScore };
+        return { newRow, rowScore, mergedValues };
     }
 
     function move(direction) {
         if(gameState !== 'playing') return;
+        startTimer();
 
         let rotatedBoard = JSON.parse(JSON.stringify(board));
         let changed = false;
         let turnScore = 0;
+        let turnMergedValues = [];
 
         const rotate = (matrix) => matrix[0].map((_, i) => matrix.map(row => row[i]).reverse());
         const rotateCCW = (matrix) => matrix[0].map((_, i) => matrix.map(row => row[row.length-1-i]));
@@ -483,6 +1088,7 @@
             let result = slideRow(originalRow);
             rotatedBoard[r] = result.newRow;
             turnScore += result.rowScore;
+            turnMergedValues.push(...result.mergedValues);
 
             if(JSON.stringify(originalRow) !== JSON.stringify(result.newRow)) changed = true;
         }
@@ -496,6 +1102,7 @@
             score += turnScore;
             moves++;
             updateUI();
+            recordMilestones(turnMergedValues);
             
             checkWin();
             if(gameState === 'playing') {
@@ -510,6 +1117,7 @@
         const overlay = document.getElementById('overlay');
         const title = document.getElementById('overlay-title');
         const details = document.getElementById('score-breakdown');
+        const finalTime = formatTime(getElapsedTime());
         
         overlay.classList.add('active');
         
@@ -523,6 +1131,7 @@
             details.innerHTML = `
                 <div><span>基础消除分:</span> <span>${score}</span></div>
                 <div><span>速度奖励:</span> <span>+${speedBonus}</span></div>
+                <div><span>本局用时:</span> <span>${finalTime}</span></div>
                 <div style="font-size:12px; color:#999; text-align:right">(${WIN_BONUS_BASE} - ${moves}步 x ${MOVE_PENALTY})</div>
                 <div class="total-line"><span>最终得分:</span> <span>${totalScore}</span></div>
             `;
@@ -532,6 +1141,7 @@
             details.innerHTML = `
                 <div><span>最终消除分:</span> <span>${score}</span></div>
                 <div><span>步数:</span> <span>${moves}</span></div>
+                <div><span>本局用时:</span> <span>${finalTime}</span></div>
                 <div class="total-line"><span>遗憾离场</span></div>
             `;
         }
@@ -540,8 +1150,11 @@
     function checkWin() {
         if(board[GRID_SIZE-1][GRID_SIZE-1] === TARGET_ID) {
             gameState = 'won';
+            pauseTimer();
+            const speedBonus = Math.max(0, WIN_BONUS_BASE - (moves * MOVE_PENALTY));
+            recordFinishedGame(true, score + speedBonus);
             renderBoard();
-            setTimeout(() => showEndScreen(true), 200);
+            endScreenTimeout = setTimeout(() => showEndScreen(true), 200);
         }
     }
 
@@ -567,7 +1180,9 @@
         }
         
         gameState = 'lost';
-        setTimeout(() => showEndScreen(false), 500);
+        pauseTimer();
+        recordFinishedGame(false, score);
+        endScreenTimeout = setTimeout(() => showEndScreen(false), 500);
     }
 
     function renderBoard() {
@@ -608,6 +1223,9 @@
     }
 
     document.addEventListener('keydown', (e) => {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault();
+        }
         if(['ArrowUp', 'w', 'W'].includes(e.key)) move('up');
         if(['ArrowDown', 's', 'S'].includes(e.key)) move('down');
         if(['ArrowLeft', 'a', 'A'].includes(e.key)) move('left');
@@ -616,14 +1234,21 @@
 
     let touchStartX = 0;
     let touchStartY = 0;
+    let touchStartedOnBoard = false;
     document.addEventListener('touchstart', e => {
         if (e.touches.length > 1) return;
+        touchStartedOnBoard = e.target instanceof Element && Boolean(e.target.closest('#game-container'));
+        if (!touchStartedOnBoard) {
+            touchStartX = 0;
+            touchStartY = 0;
+            return;
+        }
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
-        // 移除 preventDefault()，允许点击事件穿透
     }, {passive: false});
 
     document.addEventListener('touchmove', e => {
+        if (!touchStartedOnBoard) return;
         // 如果是帮助弹窗或结束弹窗处于激活状态，允许默认滚动行为
         if (document.getElementById('help-modal').classList.contains('active') || 
             document.getElementById('overlay').classList.contains('active')) {
@@ -636,10 +1261,11 @@
         // 如果有弹窗显示，不处理游戏的滑动逻辑
         if (document.getElementById('help-modal').classList.contains('active') || 
             document.getElementById('overlay').classList.contains('active')) {
+            touchStartedOnBoard = false;
             return;
         }
 
-        if(!touchStartX || !touchStartY) return;
+        if(!touchStartedOnBoard || !touchStartX || !touchStartY) return;
         let diffX = e.changedTouches[0].clientX - touchStartX;
         let diffY = e.changedTouches[0].clientY - touchStartY;
         
@@ -657,7 +1283,9 @@
                 }
             }
         }
-        touchStartX = 0; touchStartY = 0;
+        touchStartX = 0;
+        touchStartY = 0;
+        touchStartedOnBoard = false;
     }, {passive: false});
 
     window.addEventListener('resize', renderBoard);
