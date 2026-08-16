@@ -518,12 +518,23 @@
         .tile-64 { background: #f65e3b; color: #f9f6f2; }
         .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 32px; box-shadow: 0 0 10px #edcf7277; }
         .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 32px; box-shadow: 0 0 10px #edcc6177; }
-        .tile-super { background: #edc22e; color: #f9f6f2; font-size: 28px; }
+        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 28px; box-shadow: 0 0 10px #edc85077; }
+        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 26px; box-shadow: 0 0 12px #edc53f88; }
+        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 26px; box-shadow: 0 0 14px #edc22e99; }
+        .tile-super {
+            background: var(--tile-bg, #78350f);
+            color: #ffffff;
+            font-size: var(--tile-font-size, 24px);
+            box-shadow: 0 0 14px var(--tile-glow, rgba(120, 53, 15, 0.5));
+        }
 
         .milestone-tile.tile-128,
         .milestone-tile.tile-256,
+        .milestone-tile.tile-512,
+        .milestone-tile.tile-1024,
+        .milestone-tile.tile-2048,
         .milestone-tile.tile-super {
-            font-size: 11px;
+            font-size: var(--milestone-font-size, 11px);
             box-shadow: none;
         }
         
@@ -540,8 +551,13 @@
             .tile-target {
                 font-size: 40px;
             }
-            .tile-128, .tile-256, .tile-super {
+            .tile-128, .tile-256, .tile-512,
+            .tile-1024, .tile-2048 {
                 font-size: 20px;
+            }
+
+            .tile-super {
+                font-size: var(--tile-mobile-font-size, 20px);
             }
         }
 
@@ -761,7 +777,6 @@
                     <h2 id="history-title">对局记录</h2>
                     <span class="panel-kicker" id="record-count">0 局</span>
                 </div>
-                <p class="panel-subtitle">保存结束用时、最终得分与 2048 里程碑</p>
                 <div class="sort-controls" role="group" aria-label="对局记录排序方式">
                     <button class="sort-button active" id="sort-time" onclick="setRecordSort('time')" aria-pressed="true">最快用时</button>
                     <button class="sort-button" id="sort-score" onclick="setRecordSort('score')" aria-pressed="false">最高得分</button>
@@ -842,13 +857,23 @@
         updateTimerDisplay();
     }
 
+    function selectBestRecords(records) {
+        return [...records]
+            .sort((a, b) =>
+                b.finalScore - a.finalScore ||
+                a.durationMs - b.durationMs ||
+                (Number(b.id) || 0) - (Number(a.id) || 0)
+            )
+            .slice(0, MAX_SAVED_RECORDS);
+    }
+
     function loadGameRecords() {
         try {
             const saved = JSON.parse(localStorage.getItem(GAME_RECORDS_KEY) || '[]');
             if (!Array.isArray(saved)) return [];
-            return saved.filter(record =>
+            return selectBestRecords(saved.filter(record =>
                 Number.isFinite(record.durationMs) && Number.isFinite(record.finalScore)
-            ).slice(0, MAX_SAVED_RECORDS);
+            ));
         } catch (error) {
             return [];
         }
@@ -870,6 +895,38 @@
         return `tile-${value <= 2048 ? value : 'super'}`;
     }
 
+    function getTileAppearance(value) {
+        if (!Number.isFinite(value)) {
+            return {
+                className: 'tile-super',
+                displayValue: '∞',
+                style: '--tile-bg:hsl(275 72% 24%);--tile-glow:hsl(275 82% 58% / 0.48);'
+            };
+        }
+
+        const exactValue = String(value);
+        const exponent = Math.log2(value);
+        const isPowerOfTwo = Number.isInteger(exponent);
+        const displayValue = exactValue.length > 8 && isPowerOfTwo
+            ? `2^${exponent}`
+            : exactValue;
+
+        if (value <= 2048) {
+            return { className: getTileClass(value), displayValue, style: '' };
+        }
+
+        const hue = ((28 + (Math.round(exponent) - 12) * 43) % 360 + 360) % 360;
+        const extraCharacters = Math.max(0, displayValue.length - 4);
+        const tileFontSize = Math.max(12, 24 - extraCharacters * 2);
+        const mobileFontSize = Math.max(9, 20 - extraCharacters * 2);
+        const milestoneFontSize = Math.max(8, 11 - extraCharacters);
+        return {
+            className: 'tile-super',
+            displayValue,
+            style: `--tile-bg:hsl(${hue} 72% 24%);--tile-glow:hsl(${hue} 82% 58% / 0.48);--tile-font-size:${tileFontSize}px;--tile-mobile-font-size:${mobileFontSize}px;--milestone-font-size:${milestoneFontSize}px;`
+        };
+    }
+
     function renderMilestones() {
         const container = document.getElementById('milestone-list');
         const recordedValues = Object.keys(milestoneTimes).map(Number);
@@ -879,9 +936,10 @@
         container.innerHTML = `<div class="milestone-list">${values.map(value => {
             const time = milestoneTimes[value];
             const achieved = Number.isFinite(time);
+            const appearance = getTileAppearance(value);
             return `
             <div class="milestone-row" aria-label="${value}，${achieved ? `首次合成用时 ${formatTime(time)}` : '尚未合成'}">
-                <span class="milestone-tile ${getTileClass(value)}">${value}</span>
+                <span class="milestone-tile ${appearance.className}" style="${appearance.style}" title="${value}">${appearance.displayValue}</span>
                 <span class="milestone-time ${achieved ? '' : 'pending'}">${achieved ? formatTime(time) : '--:--'}</span>
             </div>
         `;}).join('')}</div>`;
@@ -967,15 +1025,15 @@
             ? milestoneTimes[2048]
             : null;
 
-        gameRecords.unshift({
+        const finishedRecord = {
             id: Date.now(),
             result: won ? 'won' : 'lost',
             durationMs: getElapsedTime(),
             finalScore,
             reached2048: timeTo2048Ms !== null,
             timeTo2048Ms
-        });
-        gameRecords = gameRecords.slice(0, MAX_SAVED_RECORDS);
+        };
+        gameRecords = selectBestRecords([...gameRecords, finishedRecord]);
         saveGameRecords();
         renderGameRecords();
     }
@@ -1213,8 +1271,14 @@
                         div.className = 'grid-cell tile-target';
                         div.innerHTML = '&infin;';
                     } else {
-                        div.className = `grid-cell tile-${val <= 2048 ? val : 'super'}`;
-                        div.innerText = val;
+                        const appearance = getTileAppearance(val);
+                        div.className = `grid-cell ${appearance.className}`;
+                        div.innerText = appearance.displayValue;
+                        div.setAttribute('aria-label', String(val));
+                        div.title = String(val);
+                        if (appearance.style) {
+                            div.style.cssText += appearance.style;
+                        }
                     }
                     container.appendChild(div);
                 }
